@@ -71,70 +71,64 @@ def residual(phi, r, h, alpha=0.3):
     return F
 
 
+
 def jacobian(phi, r, h, alpha=0.3):
     """
     Build a strictly tridiagonal Jacobian with sizes:
-      - main diagonal (offset 0): length N
-      - lower diagonal (offset -1): length N-1  (rows 1..N-1, cols 0..N-2)
-      - upper diagonal (offset +1): length N-1  (rows 0..N-2, cols 1..N-1)
+      - main diagonal (offset 0):   length N
+      - lower diagonal (offset -1): length N-1
+      - upper diagonal (offset +1): length N-1
     Enforce φ(R)=0 via a Dirichlet row at i=N-1.
     """
     N = len(r)
 
-    # φ' (centered in the interior, one sided at the outer boundary)
+    # φ' (centered interior, one-sided at R)
     phi_p = np.zeros_like(phi)
     phi_p[1:-1] = (phi[2:] - phi[:-2])/(2*h)
-    phi_p[0] = 0.0
-    phi_p[-1] = (phi[-1] - phi[-2]) / h
+    phi_p[0]    = 0.0
+    phi_p[-1]   = (phi[-1] - phi[-2])/h
 
-    # d(flux)/d(φ'), where flux = φ' + α|φ'|^2 φ'
+    # d(flux)/d(φ'), flux = φ' + α|φ'|^2 φ'
     dflux_dphip = 1.0 + 3.0*alpha*(phi_p**2)
 
     r2   = r**2
     rph  = 0.5*(r[1:] + r[:-1])
     rph2 = rph**2
 
-    # allocate full-length bands
-    a = np.zeros(N)  # lower band (we'll trim to length N-1 later)
-    b = np.zeros(N)  # main band
-    c = np.zeros(N)  # upper band (we'll trim to length N-1 later)
+    a = np.zeros(N)  # lower band
+    b = np.zeros(N)  # main  band
+    c = np.zeros(N)  # upper band
 
-    # interior points: i = 1..N-2
+    # interior nodes i=1..N-2
     for i in range(1, N-1):
-        # effective 'conductivities' at i±1/2
-        k_p = dflux_dphip[i+1]     # at i+1/2
-        k_m = dflux_dphip[i-1]     # at i-1/2
+        k_p = dflux_dphip[i+1]           # at i+1/2
+        k_m = dflux_dphip[i-1]           # at i-1/2
+        Ap  = rph2[i]   * k_p / (h * r2[i])
+        Am  = rph2[i-1] * k_m / (h * r2[i])
+        a[i] = -Am / h
+        c[i] = -Ap / h
+        b[i] = (Am + Ap)/h - 1.0          # with dV'/dφ = 1 (since V'(φ)=φ)
 
-        Ap = rph2[i]   * k_p / (h * r2[i])
-        Am = rph2[i-1] * k_m / (h * r2[i])
-
-        # divergence stencil → (Am+Ap)/h on main, -Am/h on lower, -Ap/h on upper
-        a[i] = -Am / h                  # contributes to offset -1
-        c[i] = -Ap / h                  # contributes to offset +1
-        b[i] = (Am + Ap) / h - 1.0      # -dV'/dφ with V'(φ)=φ → 1
-
-    # origin row (i=0): natural reflecting BC φ'(0)=0 (simple regularization)
+    # origin i=0: simple regularization for φ'(0)=0
     b[0] = b[1]
     c[0] = c[1]
     a[0] = 0.0
 
-    # Dirichlet row at i=N-1: φ(R)=0
+    # Dirichlet at R: φ(R)=0 ⇒ row i=N-1 is identity
     a[-1] = 0.0
     b[-1] = 1.0
     c[-1] = 0.0
 
-    # *** Critical: trim off-diagonals to length N-1 ***
-    a_trim = a[1:]      # rows 1..N-1, cols 0..N-2 → offset -1
-    c_trim = c[:-1]     # rows 0..N-2, cols 1..N-1 → offset +1
+    # *** critical: trim off-diagonals to N-1 ***
+    a_trim = a[1:].copy()   # offset -1
+    c_trim = c[:-1].copy()  # offset +1
 
-    # Build sparse tridiagonal with explicit shape
-    J = diags(
-        diagonals=[a_trim, b, c_trim],
-        offsets=[-1, 0, 1],
-        shape=(N, N),
-        format="csc"
-    )
+    # sanity (optional): uncomment if you want to debug
+    # assert len(b)==N and len(a_trim)==N-1 and len(c_trim)==N-1, (len(a_trim), len(b), len(c_trim), N)
+
+    J = diags([a_trim, b, c_trim], offsets=[-1, 0, 1], shape=(N, N), format="csc")
     return J
+
 
 
 def energy_components(phi, r, h, alpha=0.3):
