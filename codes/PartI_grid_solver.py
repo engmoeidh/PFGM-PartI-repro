@@ -70,6 +70,7 @@ def residual(phi, r, h, alpha=0.3):
     # enforce φ'(0)=0 weakly: already done via derivative definition
     return F
 
+
 def jacobian(phi, r, h, alpha=0.3):
     """
     Build a strictly tridiagonal Jacobian with sizes:
@@ -84,35 +85,35 @@ def jacobian(phi, r, h, alpha=0.3):
     phi_p = np.zeros_like(phi)
     phi_p[1:-1] = (phi[2:] - phi[:-2])/(2*h)
     phi_p[0] = 0.0
-    phi_p[-1] = (phi[-1] - phi[-2])/h
+    phi_p[-1] = (phi[-1] - phi[-2]) / h
 
     # d(flux)/d(φ'), where flux = φ' + α|φ'|^2 φ'
     dflux_dphip = 1.0 + 3.0*alpha*(phi_p**2)
 
     r2   = r**2
-    rph  = (r[1:] + r[:-1]) * 0.5
+    rph  = 0.5*(r[1:] + r[:-1])
     rph2 = rph**2
 
     # allocate full-length bands
-    a = np.zeros(N)  # lower band, will use indices 1..N-1
-    b = np.zeros(N)  # main  band, 0..N-1
-    c = np.zeros(N)  # upper band, will use indices 0..N-2
+    a = np.zeros(N)  # lower band (we'll trim to length N-1 later)
+    b = np.zeros(N)  # main band
+    c = np.zeros(N)  # upper band (we'll trim to length N-1 later)
 
-    # interior points: i=1..N-2
+    # interior points: i = 1..N-2
     for i in range(1, N-1):
-        # effective 'conductivities' at i±1/2; a cheap, stable choice
+        # effective 'conductivities' at i±1/2
         k_p = dflux_dphip[i+1]     # at i+1/2
         k_m = dflux_dphip[i-1]     # at i-1/2
 
         Ap = rph2[i]   * k_p / (h * r2[i])
         Am = rph2[i-1] * k_m / (h * r2[i])
 
-        # discrete divergence gives (Am+Ap)/h on the main, -Am/h on lower, -Ap/h on upper
-        a[i] = -Am / h
-        c[i] = -Ap / h
-        b[i] = (Am + Ap) / h - 1.0   # - d(V')/dφ, with V'(φ)=φ → 1
+        # divergence stencil → (Am+Ap)/h on main, -Am/h on lower, -Ap/h on upper
+        a[i] = -Am / h                  # contributes to offset -1
+        c[i] = -Ap / h                  # contributes to offset +1
+        b[i] = (Am + Ap) / h - 1.0      # -dV'/dφ with V'(φ)=φ → 1
 
-    # origin row (i=0): natural reflecting boundary φ'(0)=0 (copy i=1 main as a simple regularization)
+    # origin row (i=0): natural reflecting BC φ'(0)=0 (simple regularization)
     b[0] = b[1]
     c[0] = c[1]
     a[0] = 0.0
@@ -122,11 +123,11 @@ def jacobian(phi, r, h, alpha=0.3):
     b[-1] = 1.0
     c[-1] = 0.0
 
-    # trim off-diagonals to N-1
-    a_trim = a[1:]    # rows 1..N-1, cols 0..N-2 (offset -1)
-    c_trim = c[:-1]   # rows 0..N-2, cols 1..N-1 (offset +1)
+    # *** Critical: trim off-diagonals to length N-1 ***
+    a_trim = a[1:]      # rows 1..N-1, cols 0..N-2 → offset -1
+    c_trim = c[:-1]     # rows 0..N-2, cols 1..N-1 → offset +1
 
-    # build sparse tridiagonal with explicit shape
+    # Build sparse tridiagonal with explicit shape
     J = diags(
         diagonals=[a_trim, b, c_trim],
         offsets=[-1, 0, 1],
@@ -134,6 +135,7 @@ def jacobian(phi, r, h, alpha=0.3):
         format="csc"
     )
     return J
+
 
 def energy_components(phi, r, h, alpha=0.3):
     # T = 1/2 ∫ |∇φ|^2 d^3x = 2π ∫ r^2 (φ')^2 dr * 2 (angular) => 4π ∫ r^2 (φ')^2 dr
