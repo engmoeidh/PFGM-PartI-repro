@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
+from scipy.sparse import diags
 
 FIG_DIR = os.path.join(os.getcwd(), "figures")
 DATA_DIR = os.path.join(os.getcwd(), "data")
@@ -70,41 +71,68 @@ def residual(phi, r, h, alpha=0.3):
     return F
 
 def jacobian(phi, r, h, alpha=0.3):
-    # Build a sparse tridiagonal Jacobian approximation for Newton
+    """
+    Build a strictly tridiagonal Jacobian with sizes:
+      - main diagonal (offset 0): length N
+      - lower diagonal (offset -1): length N-1  (rows 1..N-1, cols 0..N-2)
+      - upper diagonal (offset +1): length N-1  (rows 0..N-2, cols 1..N-1)
+    Enforce φ(R)=0 via a Dirichlet row at i=N-1.
+    """
     N = len(r)
-    # Compute local derivative of flux wrt φ' for linearization
-    # flux = φ' + α |φ'|^2 φ'  => d flux / d φ' = 1 + 3 α (φ')^2 (sign-neutral since squared)
+
+    # φ' (centered in the interior, one sided at the outer boundary)
     phi_p = np.zeros_like(phi)
     phi_p[1:-1] = (phi[2:] - phi[:-2])/(2*h)
     phi_p[0] = 0.0
-    phi_p[-1] = (phi[-1]-phi[-2])/h
+    phi_p[-1] = (phi[-1] - phi[-2])/h
+
+    # d(flux)/d(φ'), where flux = φ' + α|φ'|^2 φ'
     dflux_dphip = 1.0 + 3.0*alpha*(phi_p**2)
 
-    # Build coefficients for discrete operator (divergence of r^2 * dflux_dphip * ∂φ/∂r)
-    r2 = r**2
-    rph = (r[1:]+r[:-1])/2.0
+    r2   = r**2
+    rph  = (r[1:] + r[:-1]) * 0.5
     rph2 = rph**2
-    a = np.zeros(N)  # lower diag
-    b = np.zeros(N)  # main diag
-    c = np.zeros(N)  # upper diag
 
-    # interior points
+    # allocate full-length bands
+    a = np.zeros(N)  # lower band, will use indices 1..N-1
+    b = np.zeros(N)  # main  band, 0..N-1
+    c = np.zeros(N)  # upper band, will use indices 0..N-2
+
+    # interior points: i=1..N-2
     for i in range(1, N-1):
-        # effective conductivity at midpoints
-        k_p = dflux_dphip[i+1]     # approximate at i+1/2
-        k_m = dflux_dphip[i-1]     # approximate at i-1/2
-        Ap = rph2[i]*k_p/(h*r2[i])
-        Am = rph2[i-1]*k_m/(h*r2[i])
-        a[i] = -Am/h
-        c[i] = -Ap/h
-        b[i] = (Am+Ap)/h - 1.0  # minus derivative of V'(φ) wrt φ = 1
+        # effective 'conductivities' at i±1/2; a cheap, stable choice
+        k_p = dflux_dphip[i+1]     # at i+1/2
+        k_m = dflux_dphip[i-1]     # at i-1/2
 
-    # origin (i=0): copy from i=1
-    a[0]=0.0; c[0]= -c[1]; b[0]= b[1]
-    # outer boundary (i=N-1): Dirichlet φ(R)=0 -> enforce with 1 on diag
-    a[-1]=0.0; b[-1]=1.0; c[-1]=0.0
+        Ap = rph2[i]   * k_p / (h * r2[i])
+        Am = rph2[i-1] * k_m / (h * r2[i])
 
-    J = diags([a, b, c], offsets=[-1,0,1], format="csc")
+        # discrete divergence gives (Am+Ap)/h on the main, -Am/h on lower, -Ap/h on upper
+        a[i] = -Am / h
+        c[i] = -Ap / h
+        b[i] = (Am + Ap) / h - 1.0   # - d(V')/dφ, with V'(φ)=φ → 1
+
+    # origin row (i=0): natural reflecting boundary φ'(0)=0 (copy i=1 main as a simple regularization)
+    b[0] = b[1]
+    c[0] = c[1]
+    a[0] = 0.0
+
+    # Dirichlet row at i=N-1: φ(R)=0
+    a[-1] = 0.0
+    b[-1] = 1.0
+    c[-1] = 0.0
+
+    # trim off-diagonals to N-1
+    a_trim = a[1:]    # rows 1..N-1, cols 0..N-2 (offset -1)
+    c_trim = c[:-1]   # rows 0..N-2, cols 1..N-1 (offset +1)
+
+    # build sparse tridiagonal with explicit shape
+    J = diags(
+        diagonals=[a_trim, b, c_trim],
+        offsets=[-1, 0, 1],
+        shape=(N, N),
+        format="csc"
+    )
     return J
 
 def energy_components(phi, r, h, alpha=0.3):
