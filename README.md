@@ -1,3 +1,4 @@
+[![repro](https://github.com/engmoeidh/PFGM-PartI-repro/actions/workflows/repro.yml/badge.svg)](https://github.com/engmoeidh/PFGM-PartI-repro/actions/workflows/repro.yml)
 # PFGM-PartI-repro
 PFGM Paper 1
 PFGM-PartI-repro
