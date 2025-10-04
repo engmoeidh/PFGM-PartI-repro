@@ -60,3 +60,6 @@ pytest -q
 # 4) inspect reproducibility metadata
 type results_manifest.json
 type logs\data_sha256.txt
+
+## How to cite
+See `CITATION.cff` or use GitHub’s “Cite this repository” button.
