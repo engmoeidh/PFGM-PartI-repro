@@ -38,3 +38,24 @@ Contact
 
 Questions / issues / requests for additional artifacts: please open a GitHub Issue or email engmoeidh85@gmail.com
 .
+
+## Reproducibility (GRG referee quick start)
+
+**Tested on Windows + Git Bash (Python venv).**
+
+```bash
+# 1) setup (from repo root)
+python -m venv .venv
+source .venv/Scripts/activate
+pip install -r requirements.txt
+pip install pytest
+
+# 2) regenerate all artifacts (CSVs & figures) and write manifests/checksums
+python scripts/rebuild_all_artifacts.py
+
+# 3) run the verification tests
+pytest -q
+
+# 4) inspect reproducibility metadata
+type results_manifest.json
+type logs\data_sha256.txt
