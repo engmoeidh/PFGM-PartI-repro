@@ -10,3 +10,11 @@ paper/*.fdb_latexmk
 paper/*.fls
 paper/*.log
 paper/main__tmp_no_microtype.*
+
+# Generated, not tracked
+logs/
+paper/*.aux
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/main__tmp_no_microtype.*
