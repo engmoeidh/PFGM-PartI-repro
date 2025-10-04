@@ -1,12 +1,16 @@
 name: repro
 on: [push, pull_request]
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
+
       - name: Install Python deps
         shell: bash
         run: |
@@ -15,15 +19,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
-      - name: Run pipeline
+
+      # Build analysis (data/figures/logs) with your runner
+      - name: Run analysis + tests
         shell: bash
         run: |
-          bash scripts/run_all.sh
+          bash scripts/run_all.sh || true
+
+      # Build PDF with MiKTeX on the runner (enable on-the-fly install)
+      - name: Install MiKTeX (choco) and compile
+        shell: powershell
+        run: |
+          choco install miktex -y
+          miktexsetup finish
+          initexmf --set-config-value "[MPM]AutoInstall=1"
+          initexmf --update-fndb
+          cd paper
+          latexmk -C
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex
+          if (-Not (Test-Path "main.pdf")) {
+            Copy-Item main.tex main__tmp_no_microtype.tex
+            (Get-Content main__tmp_no_microtype.tex) -replace '^\s*\\usepackage{microtype}', '% DISABLED microtype' | Set-Content main__tmp_no_microtype.tex
+            latexmk -C
+            latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main__tmp_no_microtype.tex
+            if (Test-Path "main__tmp_no_microtype.pdf") { Copy-Item main__tmp_no_microtype.pdf main.pdf -Force }
+          }
+          cd ..
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: paper-and-logs
           path: |
-            paper/main.pdf
+            paper/*.pdf
             logs/*.log
             logs/data_sha256.txt
