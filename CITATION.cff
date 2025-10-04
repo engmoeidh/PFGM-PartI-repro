@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it."
+title: "Proto-Field Gravity I: Foundations and Weak-Field Viability (Reproducible Artifact Repo)"
+authors:
+  - family-names: Hanash
+    given-names: Moeidh Mana
+identifiers: []
+version: 1.0.0
+date-released: 2025-10-04
+repository-code: "https://github.com/engmoeidh/PFGM-PartI-repro"
+preferred-citation:
+  type: article
+  title: "Proto-Field Gravity I: Foundations and Weak-Field Viability"
+  authors:
+    - family-names: Hanash
+      given-names: Moeidh Mana
+  journal: "General Relativity and Gravitation (target)"
+  year: 2025
+  notes: "This repository contains the reproducible data & figure pipeline and tests."
