@@ -1,0 +1,90 @@
+{
+  "generated_at": "2025-10-04T11:38:39",
+  "data": [
+    {
+      "path": "data/convergence_table.csv",
+      "size_bytes": 113,
+      "sha256": "fc214d488c3159ebba29029d7dbe2c21c09f9dab5c5c5ea813fa3825d588b6b8",
+      "mtime_iso": "2025-09-06T12:28:10",
+      "schema": {
+        "columns": [
+          "N",
+          "h",
+          "residual_L2",
+          "observed_order_p"
+        ]
+      }
+    },
+    {
+      "path": "data/grid_refinement.csv",
+      "size_bytes": 337,
+      "sha256": "7cfbbc88b481289f12fe0ce9500a60f8a0d6c0e8abe3716a07dc30b8f456f3ef",
+      "mtime_iso": "2025-10-04T11:38:37",
+      "schema": {
+        "columns": [
+          "h",
+          "T",
+          "V",
+          "E_G",
+          "E_total",
+          "virial_mismatch_abs"
+        ]
+      }
+    },
+    {
+      "path": "data/virial_diagnostics.csv",
+      "size_bytes": 408,
+      "sha256": "ad3017c216e33411ff65cd332ed2640f921cad3a66d953ed67cd3649be5cc085",
+      "mtime_iso": "2025-10-04T11:38:37",
+      "schema": {
+        "columns": [
+          "level",
+          "h",
+          "E2_T",
+          "E_V",
+          "E4",
+          "E4_minus_E2_minus_3EV",
+          "rel_mismatch"
+        ]
+      }
+    }
+  ],
+  "figures": [
+    {
+      "path": "figures/cs2_band.png",
+      "size_bytes": 45392,
+      "sha256": "3fc07698c0d86eb7a16007f3de38a1fcce4e2d02a0df3ce0b00f5845f975ad40",
+      "mtime_iso": "2025-10-04T11:38:39"
+    },
+    {
+      "path": "figures/D1.png",
+      "size_bytes": 28484,
+      "sha256": "458ec533015cf2a73de788c758b861109e97265f90d3c25939d27689fd6424e3",
+      "mtime_iso": "2025-10-04T11:38:37"
+    },
+    {
+      "path": "figures/D2.png",
+      "size_bytes": 52698,
+      "sha256": "ebc54c7bbbce29215e0eec1ce6a8ee80470eca80e5e808f1b305f1967fc14707",
+      "mtime_iso": "2025-10-04T11:38:37"
+    },
+    {
+      "path": "figures/D3.png",
+      "size_bytes": 62715,
+      "sha256": "961ff5cffe67afccce47c69fce9fc76d0f826ba4c48f20c0dc6c2acd50aadb26",
+      "mtime_iso": "2025-10-04T11:38:37"
+    },
+    {
+      "path": "figures/E_lambda_curve.png",
+      "size_bytes": 43802,
+      "sha256": "7df21fde06989fe1467b8ee59f3cd9b3a68d4b4b2473c347bfeb141db6d2a932",
+      "mtime_iso": "2025-10-04T11:38:39"
+    },
+    {
+      "path": "figures/kink_profile.png",
+      "size_bytes": 53403,
+      "sha256": "57a0684c23fb69580b59b44f22de2571b232f8de56bca82ae9af3496c096f49f",
+      "mtime_iso": "2025-10-04T11:38:38"
+    }
+  ]
+}
