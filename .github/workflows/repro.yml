@@ -1,0 +1,29 @@
+name: repro
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install Python deps
+        shell: bash
+        run: |
+          python -m venv .venv
+          source .venv/Scripts/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Run pipeline
+        shell: bash
+        run: |
+          bash scripts/run_all.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-and-logs
+          path: |
+            paper/main.pdf
+            logs/*.log
+            logs/data_sha256.txt
