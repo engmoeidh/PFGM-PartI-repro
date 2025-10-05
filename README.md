@@ -139,3 +139,28 @@ logs/
 tests/
   ...                    # schema + stationarity gates
 
+
+Reproducibility contract
+
+Figures are produced from codes/…py only; no manual editing.
+
+CSV schemas are stable and covered by tests.
+
+The run fails if:
+
+final Newton residual_L2 > 1e-10, or
+
+the D2 slope 
+𝑝
+p from virial_true_vs_h.csv is not ≈2 (paper builder).
+
+Citation
+
+If you use this code or figures in academic work, please cite the Part-I paper
+and acknowledge this repo. A BibTeX entry will be added upon publication.
+
+License
+
+This project is released for non-commercial scientific and educational use.
+See LICENSE for full terms.
+MD
