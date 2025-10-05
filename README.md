@@ -21,7 +21,7 @@ python codes/PartI_grid_solver_GF.py \
   --tol 1e-10 --kink 1 --root .
 
 pytest -q
-
+```
 Artifacts (always rewritten):
 
 data/warm_start_history.csv, data/newton_history.csv
@@ -48,7 +48,7 @@ data/virial_true_vs_h.csv fitted slope
 2
 p≈2 (see “Paper-style figures” below).
 Paper-style figures (accepted-Newton D1, true virial D2, plateau D3)
-
+```
 Use the builder to regenerate the paper versions with higher-order
 numerics and accepted-step Newton:
 
@@ -58,7 +58,58 @@ python codes/make_paper_figs.py --fast
 # Full (referee copy)
 python codes/make_paper_figs.py --L 20 --hs "0.02,0.01,0.005" \
   --gf_iters 60000 --newton_steps 16 --newton_tol 1e-10
+```
 
+Outputs:
+
+figures/D1.png — accepted Newton steps only (solid: residual; dashed: CPU).
+
+figures/D2.png — true 
+𝑅
+v
+i
+r
+=
+∣
+𝑇
+−
+𝑉
+∣
+R
+vir
+	​
+
+=∣T−V∣ vs 
+ℎ
+h with dashed 
+∝
+ℎ
+2
+∝h
+2
+;
+inputs in data/virial_true_vs_h.csv, slope printed in the title.
+
+figures/D3.png — 
+𝐸
+(
+𝑅
+)
+E(R) plateau with dashed 
+𝐸
+∞
+E
+∞
+	​
+
+.
+
+data/newton_accepted_history.csv — accepted Newton iterates (iter, residual_L2, cpu).
+
+If the D2 slope is not ~2, increase the domain --L or add a finer --hs..
+
+Commands used most often
+```
 # Re-run core PDE pipeline for the kink
 python codes/PartI_grid_solver_GF.py --model doublewell --R_base 20 \
   --h_targets "0.02,0.01,0.005" --iters 40000 --target_vrel 1e-4 \
@@ -70,7 +121,7 @@ python codes/PartI_grid_solver_GF.py --model quadratic --R_base 20 \
 
 # Paper-style figures
 python codes/make_paper_figs.py --fast
-
+```
 
 Repo layout (relevant files)
 codes/
@@ -87,6 +138,4 @@ logs/
   provenance.json        # timestamp, model, grids, tolerances, env versions
 tests/
   ...                    # schema + stationarity gates
-
-Commands used most often
 
