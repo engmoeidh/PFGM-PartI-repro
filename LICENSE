@@ -3,3 +3,40 @@ MIT License
 Copyright (c) 2025 Moeidh ...
 
 Permission is hereby granted, free of charge, to any person obtaining a copy...
+
+```bash
+cat > LICENSE << 'TXT'
+PFGM Part-I Reproducible Pipeline — Non-Commercial Research License (NCRL-1.0)
+
+Copyright (c) 2025 Moeidh Mana Hanash
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this repository and associated data and figures (the “Work”), to use, reproduce,
+and modify the Work solely for **non-commercial scientific or educational
+purposes**, subject to the following conditions:
+
+1. Attribution. Any public use of the Work or of results derived from it must
+   give appropriate credit to the Author (Moeidh Mana Hanash) and cite the
+   associated paper(s) where applicable.
+
+2. Non-Commercial Use. The Work may not be used, in whole or in part, for any
+   commercial purpose. “Commercial purpose” includes (but is not limited to)
+   sale, licensing for a fee, use in proprietary products or services, and use
+   within for-profit consulting or contract work.
+
+3. Redistribution. You may redistribute verbatim or modified copies of the Work
+   provided this license text is included, the non-commercial restriction is
+   preserved, and clear attribution is given.
+
+4. No Warranty. THE WORK IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+   FROM, OUT OF, OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS
+   IN THE WORK.
+
+5. No Patent License. No patent rights are granted under this license.
+
+For commercial licensing inquiries, contact the Author.
+TXT
